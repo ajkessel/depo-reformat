@@ -21,15 +21,11 @@ Consider the following excerpt:
 
 This will be transformed into:
 
-> Q: What is your name?
->
+> Q: What is your name?  
 > A: John Smith.
 >
 >
->
->
-> Q: Have you been deposed before?
->
+> Q: Have you been deposed before?  
 > A: No.
 
 The result is thus more appropriate form pasting into other contexts like emails or legal briefs.
