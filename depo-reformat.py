@@ -111,7 +111,8 @@ def reflow(lines):
                 start_line = last_line
             else:
                 end_line = last_line
-    
+
+    # if start and end page/lines are found, create a header
     if start_page and start_line and end_page and end_line:
         header = f'{start_page}:{start_line} - {end_page}:{end_line}\n'
  
