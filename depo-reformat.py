@@ -3,10 +3,11 @@
 Deposition transcript reformatter.
 
 Usage:
-  - In vim, visually select lines and run  :'<,'>!depo-reflow.py
-  - or in a Windows environment, to put output in system clipboard:
-  - xnoremap [shortcut_key] "ay:let @*=system('python.exe depo-reflow.py',@a)<cr>
-  - From the command line:  depo-reflow.py < excerpt.txt
+    - Copy deposition excerpt into system clipboard and run script
+    - Or run script without excerpt in clipboard and paste excerpt into popup box
+    - If successful, reformatted transcript will be in system clipboard
+    - To map to a vim hotkey that will be run on selected text (e.g. here <leader>t), add to vimrc:
+    - xnoremap xnoremap <leader>t "+y:call system('depo-reformat.py')<cr>
 
 Strips line numbers, joins wrapped lines, and puts each Q./A. exchange
 on its own line separated by a blank line, and performs other cleanup.
@@ -32,7 +33,6 @@ def get_text_input(title="Input", prompt="Paste or type text below:", width=80, 
 
     root = tk.Tk()
     root.title(title)
-    # root.attributes("-topmost", True)
 
     label = tk.Label(root, text=prompt, anchor="w")
     label.pack(fill="x", padx=8, pady=(8, 2))
@@ -72,13 +72,13 @@ def strip_line_number(line):
     # remove non-alphanumeric/punctuation characters like page breaks
     line = re.sub(f"[^a-zA-Z0-9 {re.escape(string.punctuation)}]","", line)
     # remove leading timestamps
-    line = re.sub(r"^[0-9][0-9]:[0-9][0-9](:[0-9][0-9]) *","",line)
+    line = re.sub(r"^[0-9][0-9]:[0-9][0-9](:[0-9][0-9])\s*","",line)
     line = re.sub(r"^\s*\d+\s+", "", line)           # remove leading line number
-    line = re.sub(r"  +"," ", line)                  # replace multiple spaces with one
+    line = re.sub(r"\s+"," ", line)                  # replace multiple spaces with one
     line = re.sub(r"^([0-9\s]*)$","", line)          # remove page number lines
     line = re.sub(r"^([A-Z\s\-]*)$","", line)        # remove ALL CAPS lines (e.g. confidentiality legend)
     # remove trailing timestamps
-    line = re.sub(r"[0-9][0-9]:[0-9][0-9](:[0-9][0-9])* *$","",line)
+    line = re.sub(r"[0-9][0-9]:[0-9][0-9](:[0-9][0-9])*\s*$","",line)
 
     return line
 
@@ -91,8 +91,9 @@ def reflow(lines):
     end_page = 0
     end_line = 0
     last_line = 0
+    # first, try to detect start and end page number
     for l in lines:
-        page = re.match(r'^   +([0-9]+) *$',l)
+        page = re.match(r'^\s*([0-9]+)\s*$',l)
         if page and start_page < 1:
             start_page = int(page.group())
             end_page = start_page
@@ -102,7 +103,7 @@ def reflow(lines):
                 start_line = last_line
         elif page:
             end_page = int(page.group())
-        line = re.match(r'^ *([0-9]+)[A-Za-z \.]+',l)
+        line = re.match(r'^\s*([0-9]+)[A-Za-z \.]+',l)
         if line:
             if last_line == 0 or start_page > 0:
                 last_line = int(line.group(1))
@@ -136,13 +137,28 @@ def reflow(lines):
 
 
 def main():
-    raw = pyperclip.paste()
-    gui = False
-    if not re.search(r'^ *[0-9][0-9]',raw, flags=re.MULTILINE):
-        raw = get_text_input("Paste Depo", "Paste your deposition excerpt here:")
-        gui = True
-        
+    
+    raw = ''
+
+    # FIXME doesn't work on Windows
+    # need another method to detect if session is interactive
+    # first try to read transcript from stdin
+    #if sys.stdin.isatty():
+    #    raw = sys.stdin.readlines()
+    #    if not re.search(r'^ *[0-9][0-9]', raw, flags=re.MULTILINE):
+    #        raw = ''
+
+    # if no transcript is detected from stdin, try the system clipboard
     if not raw:
+        raw = pyperclip.paste()
+    
+    # if no transcript is detected from stdin or system clipboard, pop up GUI
+    gui = not re.search(r'^ *[0-9][0-9]', raw, flags=re.MULTILINE)
+    if gui:
+        raw = get_text_input("Paste Depo", "Paste deposition excerpt")
+        
+    # if we still don't have a transcript, exit
+    if not re.search(r'^ *[0-9][0-9]', raw, flags=re.MULTILINE):
         return
 
     lines = raw.splitlines()
@@ -154,7 +170,6 @@ def main():
     for i, p in enumerate(paragraphs):
         if i == 0:
             parts.append(p)
-#        elif p.startswith(r"Q[\.\s]"):
         elif re.search(r"^Q[\.\s]",p):
             parts.append("\n\n" + p)
         else:
