@@ -14,10 +14,10 @@ This script has two modes:
 
 Consider the following excerpt:
 
-> 1   Q: What is your name?
-> 2   A: John Smith.
-> 3   Q: Have you been deposed before?
-> 4   A: No.
+> 1   Q: What is your name?  
+> 2   A: John Smith.  
+> 3   Q: Have you been deposed before?  
+> 4   A: No.  
 
 This will be transformed into:
 
@@ -30,7 +30,7 @@ This will be transformed into:
 
 The result is thus more appropriate form pasting into other contexts like emails or legal briefs.
 
-Deposition transcripts take many forms, so this may not work as expected. Always check against your source material.
+Deposition transcripts take many forms (e.g. "Q:" versus "Q.", with and without timestamps, different spacing), so this may not work as expected. Always check against your source material.
 
 # Caveat
 
