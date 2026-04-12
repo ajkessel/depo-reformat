@@ -1,10 +1,10 @@
 # depo-reformat 
 
-# Introduction
+## Introduction
 
 This is a simple script that takes an excerpt from a deposition transcript and reformats it into a flowed text format.
 
-# Usage
+## Usage
 
 This script has two modes:
 
@@ -13,7 +13,7 @@ This script has two modes:
 
 If it finds page numbers within the selected excerpt, it will add a page/line number range to the top of the output.
 
-# Example
+## Example
 
 Consider the following excerpt:
 
@@ -35,14 +35,14 @@ The result is thus more appropriate form pasting into other contexts like emails
 
 Deposition transcripts take many forms (e.g. "Q:" versus "Q.", with and without timestamps, different spacing), so this may not work as expected. Always check against your source material.
 
-# Bugs
+## Bugs
 
 File an issue if you find one!
 
-# Future work
+## Future work
 
 I'd like to allow the user to be able to use this script with piped input/output at the command-line, but have not been able to figure out a reliable way for the compiled script on Windows to detect whether it is running in a terminal or launched from Explorer.
 
-# Caveat
+## Caveat
 
 This is alpha software and barely tested.
