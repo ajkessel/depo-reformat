@@ -7,8 +7,11 @@ This is a simple script that takes an excerpt from a deposition transcript and r
 # Usage
 
 This script has two modes:
+
 1. Copy a section of a deposition transcript into your system clipboard. Execute the script. Your system clipboard will be replaced with the reformatted version.
 1. Execute the script without a transcript in your clipboard. A popup window will appear where you can paste your excerpt. Select OK and a new window will pop up with the reformatted version, which is also automatically saved into your system clipboard.
+
+If it finds page numbers within the selected excerpt, it will add a page/line number range to the top of the output.
 
 # Example
 
