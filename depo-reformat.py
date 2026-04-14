@@ -72,13 +72,13 @@ def strip_line_number(line):
     # remove non-alphanumeric/punctuation characters like page breaks
     line = re.sub(f"[^a-zA-Z0-9 {re.escape(string.punctuation)}]","", line)
     # remove leading timestamps
-    line = re.sub(r"^[0-9][0-9]:[0-9][0-9](:[0-9][0-9])\s*","",line)
+    line = re.sub(r"^[0-9][0-9]:[0-9][0-9](:[0-9][0-9])*\s*([AaPp][Mm])*\s*","",line)
     line = re.sub(r"^\s*\d+\s+", "", line)           # remove leading line number
     line = re.sub(r"\s+"," ", line)                  # replace multiple spaces with one
     line = re.sub(r"^([0-9\s]*)$","", line)          # remove page number lines
     line = re.sub(r"^([A-Z\s\-]*)$","", line)        # remove ALL CAPS lines (e.g. confidentiality legend)
     # remove trailing timestamps
-    line = re.sub(r"[0-9][0-9]:[0-9][0-9](:[0-9][0-9])*\s*$","",line)
+    line = re.sub(r"[0-9][0-9]:[0-9][0-9](:[0-9][0-9])*\s*([AaPp][Mm])*\s*$","",line)
 
     return line
 
