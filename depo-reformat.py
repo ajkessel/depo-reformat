@@ -13,12 +13,25 @@ Strips line numbers, joins wrapped lines, and puts each Q./A. exchange
 on its own line separated by a blank line, and performs other cleanup.
 """
 
+import os
+import sys
 import re
 import sys
 import string
 import pyperclip
 import tkinter as tk
+from pathlib import Path
 from tkinter import simpledialog
+from win11toast import notify
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 def get_text_input(title="Input", prompt="Paste or type text below:", width=80, height=20, text=""):
     """Pop up a resizable multiline text input window. Returns the text or None if cancelled."""
@@ -72,7 +85,7 @@ def strip_line_number(line):
     # remove non-alphanumeric/punctuation characters like page breaks
     line = re.sub(f"[^a-zA-Z0-9 {re.escape(string.punctuation)}]","", line)
     # remove leading timestamps
-    line = re.sub(r"^[0-9][0-9]:[0-9][0-9](:[0-9][0-9])*\s*([AaPp][Mm])*\s*","",line)
+    line = re.sub(r"^\s*[0-9][0-9]:[0-9][0-9](:[0-9][0-9])*\s*([AaPp][Mm])*\s*","",line)
     line = re.sub(r"^\s*\d+\s+", "", line)           # remove leading line number
     line = re.sub(r"\s+"," ", line)                  # replace multiple spaces with one
     line = re.sub(r"^([0-9\s]*)$","", line)          # remove page number lines
@@ -140,6 +153,10 @@ def reflow(lines):
 def main():
     
     raw = ''
+    icon = resource_path('icon.png')
+    if not Path(icon).is_file():
+        #       icon = os.path.dirname(os.path.abspath(__file__)) + "/icon.png"
+       icon = Path(__file__).resolve().parent.as_posix() + "/icon.png"
 
     # FIXME doesn't work on Windows
     # need another method to detect if session is interactive
@@ -159,12 +176,14 @@ def main():
         raw = get_text_input("Paste Depo", "Paste deposition excerpt")
         
     # if we still don't have a transcript, exit
-    if not re.search(r'^ *[0-9][0-9]', raw, flags=re.MULTILINE):
-        return
+    if not raw or not re.search(r'^ *[0-9][0-9]', raw, flags=re.MULTILINE):
+       notify(app_id='depo-reformat',body='No depo excerpt found',icon=icon,button='Dismiss',duration='long')
+       return
 
     lines = raw.splitlines()
     if not lines:
-        return
+       notify(app_id='depo-reformat',body='No depo excerpt found',icon=icon,button='Dismiss',duration='long')
+       return
 
     (header, paragraphs) = reflow(lines)
     parts = []
@@ -180,6 +199,8 @@ def main():
     if gui:
        raw = get_text_input("Result", "Reformatted transcript", text=result)
        pyperclip.copy(raw)
+    else:
+       notify(app_id='depo-reformat',body='Depo Excerpt Reformatted',icon=icon,button='Dismiss',duration='short')
 
 if __name__ == "__main__":
     main()
