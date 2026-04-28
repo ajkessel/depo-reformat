@@ -1,1 +1,2 @@
-pyinstaller --onefile --windowed --icon=icon.ico --add-data "icon.png;." .\depo-reformat.py
+pyinstaller --noconfirm .\depo-reformat.spec
+compress-archive -force -path .\dist\depo-reformat.exe -destinationpath .\depo-reformat.zip
